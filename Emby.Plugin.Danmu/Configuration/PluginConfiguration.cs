@@ -142,5 +142,11 @@ namespace Emby.Plugin.Danmu.Configuration
         /// 中文简繁转换。0-不转换，1-转换为简体，2-转换为繁体
         /// </summary>
         public int ChConvert { get; set; } = 0;
+
+        /// <summary>
+        /// 自定义弹幕API服务器地址（例如 http://192.168.50.56:9321）。
+        /// 留空则使用官方 api.dandanplay.net，此时需要通过环境变量配置 DANDAN_API_ID / DANDAN_API_SECRET。
+        /// </summary>
+        public string ApiBaseUrl { get; set; } = "";
     }
 }

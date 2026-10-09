@@ -33,6 +33,30 @@ namespace Emby.Plugin.Danmu.Scraper.Dandan
             get { return Plugin.Instance?.Configuration.Dandan ?? new DandanOption(); }
         }
 
+        /// <summary>
+        /// 弹幕API基础地址。配置了自定义服务器则优先使用，否则回退到官方 api.dandanplay.net。
+        /// </summary>
+        protected string BaseUrl
+        {
+            get
+            {
+                var custom = Config?.ApiBaseUrl;
+                if (!string.IsNullOrWhiteSpace(custom))
+                {
+                    return custom.TrimEnd('/');
+                }
+                return "https://api.dandanplay.net";
+            }
+        }
+
+        /// <summary>
+        /// 是否使用自定义弹幕服务器。自定义服务器（如 danmu_api）兼容弹弹play协议但不需要签名。
+        /// </summary>
+        protected bool UseCustomServer
+        {
+            get { return !string.IsNullOrWhiteSpace(Config?.ApiBaseUrl); }
+        }
+
         protected string ApiID {
             get
             {
@@ -91,7 +115,7 @@ namespace Emby.Plugin.Danmu.Scraper.Dandan
             this.LimitRequestFrequently();
 
             keyword = HttpUtility.UrlEncode(keyword);
-            var url = $"https://api.dandanplay.net/api/v2/search/anime?keyword={keyword}";
+            var url = $"{BaseUrl}/api/v2/search/anime?keyword={keyword}";
             var httpRequestOptions = new HttpRequestOptions
             {
                 //Url = $"http://sub.xmp.sandai.net:8000/subxl/{cid}.json",
@@ -138,7 +162,7 @@ namespace Emby.Plugin.Danmu.Scraper.Dandan
                 return anime;
             }
 
-            var url = $"https://api.dandanplay.net/api/v2/bangumi/{animeId}";
+            var url = $"{BaseUrl}/api/v2/bangumi/{animeId}";
             HttpRequestOptions httpRequestOptions = new HttpRequestOptions
             {
                 //Url = $"http://sub.xmp.sandai.net:8000/subxl/{cid}.json",
@@ -190,7 +214,7 @@ namespace Emby.Plugin.Danmu.Scraper.Dandan
 
             var withRelated = this.Config.WithRelatedDanmu ? "true" : "false";
             var chConvert = this.Config.ChConvert;
-            var url = $"https://api.dandanplay.net/api/v2/comment/{epId}?withRelated={withRelated}&chConvert={chConvert}";
+            var url = $"{BaseUrl}/api/v2/comment/{epId}?withRelated={withRelated}&chConvert={chConvert}";
             HttpRequestOptions httpRequestOptions = GetDefaultHttpRequestOptions(url);
             injectAppId(httpRequestOptions, url);
             var result = await httpClient.GetSelfResultAsync<CommentResult>(httpRequestOptions).ConfigureAwait(false);
@@ -221,6 +245,12 @@ namespace Emby.Plugin.Danmu.Scraper.Dandan
 
         private void injectAppId(HttpRequestOptions httpRequestOptions, string url)
         {
+            // 使用自定义弹幕服务器（如 danmu_api）时跳过弹弹play签名，避免因缺少 API_ID/API_SECRET 报错
+            if (UseCustomServer)
+            {
+                return;
+            }
+
             var timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
             var signature = GenerateSignature(url, timestamp);
             httpRequestOptions.RequestHeaders.Add("X-AppId", ApiID);

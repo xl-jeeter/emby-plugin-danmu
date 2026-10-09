@@ -32,6 +32,12 @@
                         <h3>弹弹play配置</h3>
                     </legend>
 
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="ApiBaseUrl">自定义弹幕服务器地址</label>
+                        <input id="ApiBaseUrl" name="ApiBaseUrl" type="text" is="emby-input" />
+                        <div class="fieldDescription">留空则使用官方 api.dandanplay.net（需配置 DANDAN_API_ID / DANDAN_API_SECRET）。填写自建弹幕API地址（如 http://192.168.50.56:9321）可免签名，并聚合更多弹幕源。</div>
+                    </div>
+
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
                             <input id="WithRelatedDanmu" name="WithRelatedDanmu" type="checkbox"

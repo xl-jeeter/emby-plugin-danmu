@@ -54,6 +54,7 @@ define(
 
                     container.querySelector('#WithRelatedDanmu').checked = config.Dandan.WithRelatedDanmu;
                     container.querySelector('#ChConvert').value = config.Dandan.ChConvert;
+                    container.querySelector('#ApiBaseUrl').value = config.Dandan.ApiBaseUrl || '';
 
                     var scrapersElement = container.querySelector('#Scrapers');
                     scrapersElement.innerHTML = ''; // 清空旧内容
@@ -162,6 +163,7 @@ define(
                         var dandan = {};
                         dandan.WithRelatedDanmu = container.querySelector('#WithRelatedDanmu').checked;
                         dandan.ChConvert = container.querySelector('#ChConvert').value;
+                        dandan.ApiBaseUrl = container.querySelector('#ApiBaseUrl').value;
                         config.Dandan = dandan;
 
                         ApiClient.updatePluginConfiguration(TemplateConfig.pluginUniqueId, config).then(function (result) {
